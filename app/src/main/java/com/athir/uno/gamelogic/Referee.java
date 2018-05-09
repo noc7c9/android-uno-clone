@@ -42,7 +42,20 @@ public class Referee {
     }
 
     private void requestNextMove() {
-        players.get(gameState.getCurrentTurn()).requestMove(this);
+        if (gameState.isGameOver()) {
+            notifyPlayersOnGameOver();
+        } else {
+            players.get(gameState.getCurrentTurn()).requestMove(this);
+        }
+    }
+
+    private void notifyPlayersOnGameOver() {
+        int winner = gameState.getWinner();
+        int playerID = 0;
+        for (IPlayer player : players) {
+            player.notifyGameOver(playerID == winner);
+            playerID += 1;
+        }
     }
 
 }

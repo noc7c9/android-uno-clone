@@ -1,5 +1,6 @@
 package com.athir.uno;
 
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.athir.uno.gamelogic.RandomAIPlayer;
 import com.athir.uno.gamelogic.Referee;
 import com.athir.uno.ui.DiscardMoveItem;
 import com.athir.uno.ui.DrawMoveItem;
+import com.athir.uno.ui.GameOverDialogFragment;
 import com.athir.uno.ui.IMoveItem;
 import com.athir.uno.ui.InvalidMoveItem;
 import com.athir.uno.ui.MoveViewAdaptor;
@@ -23,7 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements IPlayer {
+public class MainActivity extends AppCompatActivity
+        implements IPlayer, GameOverDialogFragment.GameOverDialogListener {
 
     private static final int PLAYER_ID = 0;
     private static final int CPU_ID = 1;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements IPlayer {
     private MoveViewAdaptor handViewAdaptor;
 
     private Referee referee;
+    private MoveItemPlayVisitor playVisitor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,27 +51,28 @@ public class MainActivity extends AppCompatActivity implements IPlayer {
         drawPileText = findViewById(R.id.drawPile);
         discardPileText = findViewById(R.id.discardPile);
 
-
-        List<IPlayer> players = new ArrayList<>();
-        players.add(PLAYER_ID, this);
-        players.add(CPU_ID, new RandomAIPlayer());
-
         GridView handView = findViewById(R.id.handView);
         handViewAdaptor = new MoveViewAdaptor(this);
         handView.setAdapter(handViewAdaptor);
 
         handView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            private MoveItemPlayVisitor playVisitor;
-
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                if (playVisitor == null) {
-                    playVisitor = new MoveItemPlayVisitor(referee);
+                if (playVisitor != null) {
+                    handViewAdaptor.getItem(position).accept(playVisitor);
                 }
-                handViewAdaptor.getItem(position).accept(playVisitor);
             }
         });
 
+        resetGame();
+    }
+
+    public void resetGame() {
+        List<IPlayer> players = new ArrayList<>();
+        players.add(PLAYER_ID, this);
+        players.add(CPU_ID, new RandomAIPlayer());
+
         referee = new Referee(players);
+        playVisitor = new MoveItemPlayVisitor(referee);
     }
 
     @Override
@@ -102,7 +107,25 @@ public class MainActivity extends AppCompatActivity implements IPlayer {
 
     @Override
     public void requestMove(Referee referee) {
+        return;
+    }
 
+    @Override
+    public void notifyGameOver(boolean isWinner) {
+        DialogFragment dialog = new GameOverDialogFragment();
+
+        Bundle args = new Bundle();
+        args.putBoolean(GameOverDialogFragment.SHOW_WIN_MESSAGE_KEY, isWinner);
+        dialog.setArguments(args);
+
+        dialog.setCancelable(false);
+
+        dialog.show(getSupportFragmentManager(), GameOverDialogFragment.TAG);
+    }
+
+    @Override
+    public void onGameOverDialogOkClick() {
+        resetGame();
     }
 
 }

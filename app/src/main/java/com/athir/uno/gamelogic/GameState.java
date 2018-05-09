@@ -21,6 +21,9 @@ public class GameState {
     private LinkedList<Card> drawPile;
     private LinkedList<Card> discardPile;
 
+    private boolean isGameOver = false;
+    private int winner = -1;
+
     public GameState(int numPlayers) {
         this.numPlayers = numPlayers;
         this.currentTurn = 0;
@@ -66,6 +69,14 @@ public class GameState {
         return currentTurn;
     }
 
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public int getWinner() {
+        return winner;
+    }
+
     public List<Card> getHand(int playerId) {
         validatePlayerIDParameter(playerId);
         return Collections.unmodifiableList(hands.get(playerId));
@@ -88,6 +99,10 @@ public class GameState {
     }
 
     public boolean playCard(Card cardToPlay) {
+        if (isGameOver) {
+            return false;
+        }
+
         if (!GameState.isValidPlay(getTopCard(), cardToPlay)) {
             return false;
         }
@@ -97,12 +112,22 @@ public class GameState {
         hand.remove(cardToPlay);
         discardPile.push(cardToPlay);
 
+        // detect game over
+        if (hand.size() == 0) {
+            isGameOver = true;
+            winner = currentTurn;
+        }
+
         endTurn();
         Log.i("PLAY CARD", cardToPlay.toString());
         return true;
     }
 
     public boolean drawCard() {
+        if (isGameOver) {
+            return false;
+        }
+
         hands.get(currentTurn).add(drawPile.pop());
 
         endTurn();

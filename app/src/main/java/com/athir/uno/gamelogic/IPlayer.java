@@ -9,4 +9,6 @@ public interface IPlayer {
 
     void requestMove(Referee referee);
 
+    void notifyGameOver(boolean isWinner);
+
 }
