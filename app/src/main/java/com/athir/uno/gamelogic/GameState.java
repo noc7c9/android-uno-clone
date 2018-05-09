@@ -1,14 +1,10 @@
 package com.athir.uno.gamelogic;
 
-import android.util.Log;
-
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class GameState {
@@ -113,13 +109,13 @@ public class GameState {
         return discardPile.peek();
     }
 
-    public boolean playCard(Card cardToPlay) {
+    public void playCard(Card cardToPlay) {
         if (isGameOver) {
-            return false;
+            return;
         }
 
         if (!GameState.isValidPlay(getTopCard(), cardToPlay)) {
-            return false;
+            return;
         }
 
         ArrayList<Card> hand = hands.get(currentTurn);
@@ -134,12 +130,11 @@ public class GameState {
         }
 
         endTurn();
-        return true;
     }
 
-    public boolean drawCard() {
+    public void drawCard() {
         if (isGameOver) {
-            return false;
+            return;
         }
 
         // It is possible for draw pile to still be empty.
@@ -151,7 +146,6 @@ public class GameState {
         }
 
         endTurn();
-        return true;
     }
 
     public static boolean isValidPlay(Card topCard, Card cardToPlay) {
