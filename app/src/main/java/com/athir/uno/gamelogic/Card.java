@@ -1,4 +1,4 @@
-package com.athir.uno.gamecore;
+package com.athir.uno.gamelogic;
 
 import java.util.Locale;
 

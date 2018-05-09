@@ -1,13 +1,14 @@
-package com.athir.uno.gamecore;
+package com.athir.uno.gamelogic;
 
 import android.util.Log;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 public class GameState {
 
@@ -50,14 +51,32 @@ public class GameState {
         discardPile.add(drawPile.pop());
     }
 
+    private void endTurn() {
+        currentTurn = (currentTurn + 1) % numPlayers;
+    }
+
+    private void validatePlayerIDParameter(int playerId) {
+        if (playerId < 0 || playerId >= numPlayers) {
+            throw new InvalidParameterException(
+                    String.format("player id must be within the range 0 to %d", numPlayers - 1));
+        }
+    }
+
+    public int getCurrentTurn() {
+        return currentTurn;
+    }
+
     public List<Card> getHand(int playerId) {
         validatePlayerIDParameter(playerId);
         return Collections.unmodifiableList(hands.get(playerId));
     }
 
-    public int getHandSize(int playerId) {
-        validatePlayerIDParameter(playerId);
-        return hands.get(playerId).size();
+    public List<Integer> getHandSizes() {
+        List<Integer> handSizes = new ArrayList<>(hands.size());
+        for (List<Card> hand : hands) {
+            handSizes.add(hand.size());
+        }
+        return handSizes;
     }
 
     public int getDrawPileSize() {
@@ -68,17 +87,8 @@ public class GameState {
         return discardPile.peek();
     }
 
-    public boolean isValidPlay(Card cardToPlay) {
-        Card topCard = getTopCard();
-
-        boolean isSameColor = topCard.getColor() == cardToPlay.getColor();
-        boolean isSameValue = topCard.getValue() == cardToPlay.getValue();
-
-        return isSameColor || isSameValue;
-    }
-
     public boolean playCard(Card cardToPlay) {
-        if (!isValidPlay(cardToPlay)) {
+        if (!GameState.isValidPlay(getTopCard(), cardToPlay)) {
             return false;
         }
 
@@ -100,27 +110,11 @@ public class GameState {
         return true;
     }
 
-    public void cpuMove() {
-        for (Card card : hands.get(currentTurn)) {
-            if (isValidPlay(card)) {
-                Log.i("CPU AI", card.toString());
-                playCard(card);
-                return;
-            }
-        }
-        Log.i("CPU AI", "Draw");
-        drawCard();
-    }
+    public static boolean isValidPlay(Card topCard, Card cardToPlay) {
+        boolean isSameColor = topCard.getColor() == cardToPlay.getColor();
+        boolean isSameValue = topCard.getValue() == cardToPlay.getValue();
 
-    private void endTurn() {
-        currentTurn = (currentTurn + 1) % numPlayers;
-    }
-
-    private void validatePlayerIDParameter(int playerId) {
-        if (playerId < 0 || playerId >= numPlayers) {
-            throw new InvalidParameterException(
-                    String.format("player id must be within the range 0 to %d", numPlayers - 1));
-        }
+        return isSameColor || isSameValue;
     }
 
 }

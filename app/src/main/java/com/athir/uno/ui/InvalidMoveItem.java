@@ -1,6 +1,6 @@
 package com.athir.uno.ui;
 
-import com.athir.uno.gamecore.Card;
+import com.athir.uno.gamelogic.Card;
 
 public class InvalidMoveItem implements IMoveItem {
 
@@ -29,4 +29,5 @@ public class InvalidMoveItem implements IMoveItem {
     public void accept(IMoveItemVisitor visitor) {
         visitor.visit(this);
     }
+
 }

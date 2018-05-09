@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MoveViewAdaptor extends BaseAdapter {
@@ -18,8 +19,9 @@ public class MoveViewAdaptor extends BaseAdapter {
 
     private ColorStateList defaultTextColors = null;
 
-    public MoveViewAdaptor(Context context, List<IMoveItem> moveItems) {
-        this.moveItems = moveItems;
+    public MoveViewAdaptor(Context context) {
+        // initially load no items
+        this.moveItems = new ArrayList<>(0);
 
         this.context = context;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

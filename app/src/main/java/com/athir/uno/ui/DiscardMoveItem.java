@@ -1,7 +1,6 @@
 package com.athir.uno.ui;
 
-import com.athir.uno.R;
-import com.athir.uno.gamecore.Card;
+import com.athir.uno.gamelogic.Card;
 
 public class DiscardMoveItem implements IMoveItem {
 
@@ -18,7 +17,7 @@ public class DiscardMoveItem implements IMoveItem {
 
     @Override
     public int getColorID() {
-        return Utility.cardColorToColorId(card.getColor());
+        return UIUtility.cardColorToColorId(card.getColor());
     }
 
     @Override

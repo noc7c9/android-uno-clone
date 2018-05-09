@@ -1,11 +1,16 @@
 package com.athir.uno.ui;
 
-import android.graphics.Color;
+import android.content.Context;
 
 import com.athir.uno.R;
-import com.athir.uno.gamecore.CardColor;
+import com.athir.uno.gamelogic.CardColor;
 
-public final class Utility {
+public final class UIUtility {
+
+    public static int cardColorToColorValue(CardColor cardColor, Context context) {
+        int colorId = cardColorToColorId(cardColor);
+        return context.getResources().getColor(colorId);
+    }
 
     public static int cardColorToColorId(CardColor cardColor) {
         switch (cardColor) {

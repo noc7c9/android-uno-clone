@@ -1,8 +1,6 @@
 package com.athir.uno;
 
-import android.util.Log;
-
-import com.athir.uno.gamecore.GameState;
+import com.athir.uno.gamelogic.Referee;
 import com.athir.uno.ui.DiscardMoveItem;
 import com.athir.uno.ui.DrawMoveItem;
 import com.athir.uno.ui.IMoveItemVisitor;
@@ -10,21 +8,20 @@ import com.athir.uno.ui.InvalidMoveItem;
 
 class MoveItemPlayVisitor implements IMoveItemVisitor {
 
-    private GameState gameState;
+    private Referee referee;
 
-    public MoveItemPlayVisitor(GameState gameState) {
-        this.gameState = gameState;
+    public MoveItemPlayVisitor(Referee referee) {
+        this.referee = referee;
     }
 
     @Override
     public void visit(DrawMoveItem moveItem) {
-        gameState.drawCard();
+        referee.drawCard();
     }
 
     @Override
     public void visit(DiscardMoveItem moveItem) {
-        Log.i("PLAYER", "Attempting to play: " + moveItem.getCard());
-        gameState.playCard(moveItem.getCard());
+        referee.playCard(moveItem.getCard());
     }
 
     @Override

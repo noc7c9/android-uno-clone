@@ -1,7 +1,7 @@
 package com.athir.uno;
 
-import com.athir.uno.gamecore.GameState;
-import com.athir.uno.gamecore.ICard;
+import com.athir.uno.gamelogic.GameState;
+import com.athir.uno.gamelogic.ICard;
 
 import org.junit.Test;
 
