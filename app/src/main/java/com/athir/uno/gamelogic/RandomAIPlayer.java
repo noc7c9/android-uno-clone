@@ -39,8 +39,6 @@ public class RandomAIPlayer implements IPlayer {
     }
 
     @Override
-    public void notifyGameOver(boolean isWinner) {
-        return;
-    }
+    public void notifyGameOver(boolean isWinner) { }
 
 }

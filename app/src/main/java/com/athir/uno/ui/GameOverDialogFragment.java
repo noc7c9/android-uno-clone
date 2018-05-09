@@ -46,7 +46,9 @@ public class GameOverDialogFragment extends DialogFragment {
 
         try {
             listener = (GameOverDialogListener) context;
-        } catch (ClassCastException e) {}
+        } catch (ClassCastException e) {
+            listener = null;
+        }
     }
 
 }

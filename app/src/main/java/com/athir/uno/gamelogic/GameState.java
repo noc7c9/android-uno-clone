@@ -9,10 +9,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class GameState {
 
     private static final int INITIAL_HAND_SIZE = 7;
+
+    private final Random rng;
 
     private final int numPlayers;
     private int currentTurn;
@@ -25,8 +28,10 @@ public class GameState {
     private int winner = -1;
 
     public GameState(int numPlayers) {
+        this.rng = new Random();
+
         this.numPlayers = numPlayers;
-        this.currentTurn = 0;
+        this.currentTurn = rng.nextInt(numPlayers);
 
         // Initialize the deck
         drawPile = new LinkedList<>();
@@ -36,7 +41,7 @@ public class GameState {
                 drawPile.add(new Card(color, value));
             }
         }
-        Collections.shuffle(drawPile);
+        Collections.shuffle(drawPile, rng);
 
         // Initialize player hands
         hands = new ArrayList<>(numPlayers);
@@ -56,6 +61,16 @@ public class GameState {
 
     private void endTurn() {
         currentTurn = (currentTurn + 1) % numPlayers;
+    }
+
+    private void reshuffleDiscardPile() {
+        drawPile.add(discardPile.pop());
+
+        LinkedList<Card> tmp = drawPile;
+        drawPile = discardPile;
+        discardPile = tmp;
+
+        Collections.shuffle(drawPile, rng);
     }
 
     private void validatePlayerIDParameter(int playerId) {
@@ -119,7 +134,6 @@ public class GameState {
         }
 
         endTurn();
-        Log.i("PLAY CARD", cardToPlay.toString());
         return true;
     }
 
@@ -128,10 +142,15 @@ public class GameState {
             return false;
         }
 
-        hands.get(currentTurn).add(drawPile.pop());
+        // It is possible for draw pile to still be empty.
+        if (drawPile.size() > 0) {
+            hands.get(currentTurn).add(drawPile.pop());
+        }
+        if (drawPile.size() == 0) {
+            reshuffleDiscardPile();
+        }
 
         endTurn();
-        Log.i("DRAW CARD", "-");
         return true;
     }
 

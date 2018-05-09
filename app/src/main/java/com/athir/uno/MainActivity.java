@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity
 
     private MoveViewAdaptor handViewAdaptor;
 
-    private Referee referee;
     private MoveItemPlayVisitor playVisitor;
 
     @Override
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         players.add(PLAYER_ID, this);
         players.add(CPU_ID, new RandomAIPlayer());
 
-        referee = new Referee(players);
+        Referee referee = new Referee(players);
         playVisitor = new MoveItemPlayVisitor(referee);
     }
 
@@ -106,9 +105,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void requestMove(Referee referee) {
-        return;
-    }
+    public void requestMove(Referee referee) {}
 
     @Override
     public void notifyGameOver(boolean isWinner) {
