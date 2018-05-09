@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class GameState {
+public class GameState implements IMoveVisitor {
 
     private static final int INITIAL_HAND_SIZE = 7;
 
@@ -23,7 +23,7 @@ public class GameState {
     private boolean isGameOver = false;
     private int winner = -1;
 
-    public GameState(int numPlayers) {
+    GameState(int numPlayers) {
         this.rng = new Random();
 
         this.numPlayers = numPlayers;
@@ -69,11 +69,13 @@ public class GameState {
         Collections.shuffle(drawPile, rng);
     }
 
-    private void validatePlayerIDParameter(int playerId) {
-        if (playerId < 0 || playerId >= numPlayers) {
-            throw new InvalidParameterException(
-                    String.format("player id must be within the range 0 to %d", numPlayers - 1));
-        }
+    private boolean isValidPlay(Card cardToPlay) {
+        Card topCard = getTopCard();
+
+        boolean isSameColor = topCard.getColor() == cardToPlay.getColor();
+        boolean isSameValue = topCard.getValue() == cardToPlay.getValue();
+
+        return isSameColor || isSameValue;
     }
 
     public int getCurrentTurn() {
@@ -89,7 +91,10 @@ public class GameState {
     }
 
     public List<Card> getHand(int playerId) {
-        validatePlayerIDParameter(playerId);
+        if (playerId < 0 || playerId >= numPlayers) {
+            throw new InvalidParameterException(
+                    String.format("player id must be within the range 0 to %d", numPlayers - 1));
+        }
         return Collections.unmodifiableList(hands.get(playerId));
     }
 
@@ -109,12 +114,34 @@ public class GameState {
         return discardPile.peek();
     }
 
-    public void playCard(Card cardToPlay) {
-        if (isGameOver) {
+    public List<IMove> getMoves() {
+        List<Card> hand = hands.get(currentTurn);
+
+        List<IMove> moves = new ArrayList<>(hand.size() + 1);
+        for (Card card : hand) {
+            if (isValidPlay(card)) {
+                moves.add(new PlayCardMove(currentTurn, card));
+            }
+        }
+
+        moves.add(new DrawCardMove(currentTurn));
+
+        return moves;
+    }
+
+    public void play(IMove move) {
+        move.accept(this);
+    }
+
+    @Override
+    public void visit(PlayCardMove move) {
+        if (isGameOver || move.getPlayer() != currentTurn) {
             return;
         }
 
-        if (!GameState.isValidPlay(getTopCard(), cardToPlay)) {
+        Card cardToPlay = move.getCard();
+
+        if (!isValidPlay(cardToPlay)) {
             return;
         }
 
@@ -132,8 +159,9 @@ public class GameState {
         endTurn();
     }
 
-    public void drawCard() {
-        if (isGameOver) {
+    @Override
+    public void visit(DrawCardMove move) {
+        if (isGameOver || move.getPlayer() != currentTurn) {
             return;
         }
 
@@ -147,12 +175,4 @@ public class GameState {
 
         endTurn();
     }
-
-    public static boolean isValidPlay(Card topCard, Card cardToPlay) {
-        boolean isSameColor = topCard.getColor() == cardToPlay.getColor();
-        boolean isSameValue = topCard.getValue() == cardToPlay.getValue();
-
-        return isSameColor || isSameValue;
-    }
-
 }

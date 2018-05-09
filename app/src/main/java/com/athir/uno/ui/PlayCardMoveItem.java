@@ -1,13 +1,17 @@
 package com.athir.uno.ui;
 
 import com.athir.uno.gamelogic.Card;
+import com.athir.uno.gamelogic.IMove;
+import com.athir.uno.gamelogic.PlayCardMove;
 
-public class DiscardMoveItem implements IMoveItem {
+public class PlayCardMoveItem implements IMoveItem {
 
+    private PlayCardMove move;
     private Card card;
 
-    public DiscardMoveItem(Card card) {
-        this.card = card;
+    PlayCardMoveItem(PlayCardMove move) {
+        this.move = move;
+        this.card = move.getCard();
     }
 
     @Override
@@ -26,12 +30,8 @@ public class DiscardMoveItem implements IMoveItem {
     }
 
     @Override
-    public void accept(IMoveItemVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    public Card getCard() {
-        return card;
+    public IMove getMove() {
+        return move;
     }
 
 }

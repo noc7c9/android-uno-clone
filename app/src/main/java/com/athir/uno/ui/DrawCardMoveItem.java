@@ -1,19 +1,19 @@
 package com.athir.uno.ui;
 
-import com.athir.uno.gamelogic.Card;
+import com.athir.uno.gamelogic.DrawCardMove;
 import com.athir.uno.gamelogic.IMove;
 
-public class InvalidMoveItem implements IMoveItem {
+public class DrawCardMoveItem implements IMoveItem {
 
-    private Card card;
+    private DrawCardMove move;
 
-    InvalidMoveItem(Card card) {
-        this.card = card;
+    DrawCardMoveItem(DrawCardMove move) {
+        this.move = move;
     }
 
     @Override
     public String getLabel() {
-        return card.toString();
+        return "Draw a card";
     }
 
     @Override
@@ -23,12 +23,12 @@ public class InvalidMoveItem implements IMoveItem {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     @Override
     public IMove getMove() {
-        return null;
+        return move;
     }
 
 }

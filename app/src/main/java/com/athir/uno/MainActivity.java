@@ -9,15 +9,12 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.athir.uno.gamelogic.Card;
-import com.athir.uno.gamelogic.GameState;
+import com.athir.uno.gamelogic.IMove;
 import com.athir.uno.gamelogic.IPlayer;
 import com.athir.uno.gamelogic.RandomAIPlayer;
 import com.athir.uno.gamelogic.Referee;
-import com.athir.uno.ui.DiscardMoveItem;
-import com.athir.uno.ui.DrawMoveItem;
+import com.athir.uno.ui.MoveItemFactoryMoveVisitor;
 import com.athir.uno.ui.GameOverDialogFragment;
-import com.athir.uno.ui.IMoveItem;
-import com.athir.uno.ui.InvalidMoveItem;
 import com.athir.uno.ui.MoveViewAdaptor;
 import com.athir.uno.ui.UIUtility;
 
@@ -38,7 +35,8 @@ public class MainActivity extends AppCompatActivity
 
     private MoveViewAdaptor handViewAdaptor;
 
-    private MoveItemPlayVisitor playVisitor;
+    private Referee referee;
+    private MoveItemFactoryMoveVisitor moveItemFactoryMoveVisitor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +54,9 @@ public class MainActivity extends AppCompatActivity
 
         handView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                if (playVisitor != null) {
-                    handViewAdaptor.getItem(position).accept(playVisitor);
+                IMove move = handViewAdaptor.getItem(position).getMove();
+                if (move != null) {
+                    referee.play(move);
                 }
             }
         });
@@ -65,13 +64,12 @@ public class MainActivity extends AppCompatActivity
         resetGame();
     }
 
-    public void resetGame() {
+    private void resetGame() {
         List<IPlayer> players = new ArrayList<>();
         players.add(PLAYER_ID, this);
         players.add(CPU_ID, new RandomAIPlayer());
 
-        Referee referee = new Referee(players);
-        playVisitor = new MoveItemPlayVisitor(referee);
+        referee = new Referee(players);
     }
 
     @Override
@@ -89,23 +87,17 @@ public class MainActivity extends AppCompatActivity
         discardPileText.setBackgroundColor(
                 UIUtility.cardColorToColorValue(topDiscardCard.getColor(), this));
 
-        // update the moves view
-        List<IMoveItem> moveItems = new ArrayList<>(hand.size() + 1);
-
-        for (Card card : hand) {
-            if (GameState.isValidPlay(topDiscardCard, card)) {
-                moveItems.add(new DiscardMoveItem(card));
-            } else {
-                moveItems.add(new InvalidMoveItem(card));
-            }
-        }
-        moveItems.add(new DrawMoveItem());
-
-        handViewAdaptor.updateMoveItems(moveItems);
+        moveItemFactoryMoveVisitor = new MoveItemFactoryMoveVisitor(hand);
     }
 
     @Override
-    public void requestMove(Referee referee) {}
+    public void requestMove(Referee referee, List<IMove> moves) {
+        for (IMove move : moves) {
+            move.accept(moveItemFactoryMoveVisitor);
+        }
+
+        handViewAdaptor.updateMoveItems(moveItemFactoryMoveVisitor.getMoveItems());
+    }
 
     @Override
     public void notifyGameOver(boolean isWinner) {

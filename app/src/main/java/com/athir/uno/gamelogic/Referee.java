@@ -15,14 +15,8 @@ public class Referee {
         requestNextMove();
     }
 
-    public void playCard(Card cardToPlay) {
-        gameState.playCard(cardToPlay);
-        updatePlayersOnStateChange();
-        requestNextMove();
-    }
-
-    public void drawCard() {
-        gameState.drawCard();
+    public void play(IMove move) {
+        gameState.play(move);
         updatePlayersOnStateChange();
         requestNextMove();
     }
@@ -45,7 +39,7 @@ public class Referee {
         if (gameState.isGameOver()) {
             notifyPlayersOnGameOver();
         } else {
-            players.get(gameState.getCurrentTurn()).requestMove(this);
+            players.get(gameState.getCurrentTurn()).requestMove(this, gameState.getMoves());
         }
     }
 

@@ -26,4 +26,20 @@ public class Card {
     public int getValue() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Card)) {
+            return false;
+        }
+        Card card = (Card) o;
+        return color == card.color && value == card.value;
+    }
+
+    @Override
+    public int hashCode() {
+        return color.ordinal() * 1000 + value;
+    }
+
 }

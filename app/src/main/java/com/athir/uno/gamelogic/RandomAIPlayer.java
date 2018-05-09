@@ -1,6 +1,5 @@
 package com.athir.uno.gamelogic;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -8,37 +7,55 @@ import java.util.Random;
 public class RandomAIPlayer implements IPlayer {
 
     private Random rng;
-    private List<Card> hand;
-    private Card topDiscardCard;
 
     public RandomAIPlayer() {
         rng = new Random();
     }
 
     @Override
-    public void updateState(int playerID, Card topDiscardCard, int drawPileSize, List<Integer> handSizes, List<Card> hand) {
-        this.hand = hand;
-        this.topDiscardCard = topDiscardCard;
-    }
+    public void updateState(int playerID, Card topDiscardCard, int drawPileSize,
+                            List<Integer> handSizes, List<Card> hand) { }
 
     @Override
-    public void requestMove(Referee referee) {
-        List<Card> validCards = new ArrayList<>(hand.size());
-        for (Card card : hand) {
-            if (GameState.isValidPlay(topDiscardCard, card)) {
-                validCards.add(card);
-            }
+    public void requestMove(Referee referee, List<IMove> moves) {
+        RandomSelectMoveVisitor visitor = new RandomSelectMoveVisitor(moves.size());
+        for (IMove move : moves) {
+            move.accept(visitor);
         }
-
-        if (validCards.size() > 0) {
-            int index = rng.nextInt(validCards.size());
-            referee.playCard(validCards.get(index));
-        } else {
-            referee.drawCard();
-        }
+        referee.play(visitor.getSelection());
     }
 
     @Override
     public void notifyGameOver(boolean isWinner) { }
+
+
+    private class RandomSelectMoveVisitor implements IMoveVisitor {
+
+        private List<PlayCardMove> playMoves;
+        private DrawCardMove drawMove;
+
+        public RandomSelectMoveVisitor(int capacity) {
+            playMoves = new ArrayList<>(capacity);
+        }
+
+        public IMove getSelection() {
+            if (playMoves.size() > 0) {
+                return playMoves.get(rng.nextInt(playMoves.size()));
+            } else {
+                return drawMove;
+            }
+        }
+
+        @Override
+        public void visit(PlayCardMove move) {
+            playMoves.add(move);
+        }
+
+        @Override
+        public void visit(DrawCardMove move) {
+            drawMove = move;
+        }
+
+    }
 
 }
