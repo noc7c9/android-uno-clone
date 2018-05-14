@@ -1,11 +1,18 @@
 package com.athir.uno.gamelogic;
 
+/**
+ * Move class for playing card from the hand.
+ */
 public class PlayCardMove implements IMove {
 
     private int player;
-    private Card card;
+    private ICard card;
 
-    PlayCardMove(int player, Card card) {
+    /**
+     * @param player the player to make the move
+     * @param card the card to be played
+     */
+    PlayCardMove(int player, ICard card) {
         this.player = player;
         this.card = card;
     }
@@ -20,7 +27,10 @@ public class PlayCardMove implements IMove {
         return player;
     }
 
-    public Card getCard() {
+    /**
+     * @return the card this move will play
+     */
+    public ICard getCard() {
         return card;
     }
 

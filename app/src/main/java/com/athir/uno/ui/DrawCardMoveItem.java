@@ -3,10 +3,16 @@ package com.athir.uno.ui;
 import com.athir.uno.gamelogic.DrawCardMove;
 import com.athir.uno.gamelogic.IMove;
 
+/**
+ * Move item for drawing a card.
+ */
 public class DrawCardMoveItem implements IMoveItem {
 
     private DrawCardMove move;
 
+    /**
+     * @param move the move this item represents
+     */
     DrawCardMoveItem(DrawCardMove move) {
         this.move = move;
     }

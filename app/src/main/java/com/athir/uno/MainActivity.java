@@ -8,13 +8,11 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.athir.uno.gamelogic.Card;
+import com.athir.uno.gamelogic.ICard;
 import com.athir.uno.gamelogic.IMove;
-import com.athir.uno.gamelogic.IPlayer;
-import com.athir.uno.gamelogic.RandomAIPlayer;
-import com.athir.uno.gamelogic.Referee;
-import com.athir.uno.ui.MoveItemFactoryMoveVisitor;
 import com.athir.uno.ui.GameOverDialogFragment;
+import com.athir.uno.ui.IMoveItem;
+import com.athir.uno.ui.MoveItemsCreator;
 import com.athir.uno.ui.MoveViewAdaptor;
 import com.athir.uno.ui.UIUtility;
 
@@ -22,21 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Main activity of the app.
+ *
+ * Responsible for starting and restarting the game as well as managing the user interface.
+ */
 public class MainActivity extends AppCompatActivity
         implements IPlayer, GameOverDialogFragment.GameOverDialogListener {
 
-    private static final int PLAYER_ID = 0;
-    private static final int CPU_ID = 1;
-
+    // UI elements
     private TextView cpuHandText;
     private TextView playerHandText;
     private TextView drawPileText;
     private TextView discardPileText;
 
-    private MoveViewAdaptor handViewAdaptor;
+    private MoveViewAdaptor moveViewAdaptor;
 
+    // The game related state variables
     private Referee referee;
-    private MoveItemFactoryMoveVisitor moveItemFactoryMoveVisitor;
+    private List<ICard> currentHand;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,37 +50,44 @@ public class MainActivity extends AppCompatActivity
         drawPileText = findViewById(R.id.drawPile);
         discardPileText = findViewById(R.id.discardPile);
 
-        GridView handView = findViewById(R.id.handView);
-        handViewAdaptor = new MoveViewAdaptor(this);
-        handView.setAdapter(handViewAdaptor);
+        // Setup the adaptor and listener for the move view
+        GridView moveView = findViewById(R.id.moveView);
+        moveViewAdaptor = new MoveViewAdaptor(this);
+        moveView.setAdapter(moveViewAdaptor);
 
-        handView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        moveView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                IMove move = handViewAdaptor.getItem(position).getMove();
+                IMove move = moveViewAdaptor.getItem(position).getMove();
                 if (move != null) {
                     referee.play(move);
                 }
             }
         });
 
+        // Finally start the game
         resetGame();
     }
 
+    /**
+     * (Re)starts the game.
+     */
     private void resetGame() {
         List<IPlayer> players = new ArrayList<>();
-        players.add(PLAYER_ID, this);
-        players.add(CPU_ID, new RandomAIPlayer());
+        players.add(this);
+        players.add(new RandomAIPlayer());
 
         referee = new Referee(players);
     }
 
     @Override
-    public void updateState(int playerID, Card topDiscardCard, int drawPileSize,
-                            List<Integer> handSizes, List<Card> hand) {
+    public void updateState(int playerID, ICard topDiscardCard, int drawPileSize,
+                            List<Integer> handSizes, List<ICard> hand) {
+
+        // Update the user interface with new game state information.
         cpuHandText.setText(String.format(Locale.getDefault(),
-                "CPU Hand: %d cards", handSizes.get(CPU_ID)));
+                "CPU Hand: %d cards", handSizes.get(playerID == 0 ? 1 : 0)));
         playerHandText.setText(String.format(Locale.getDefault(),
-                "Your Hand: %d cards", handSizes.get(PLAYER_ID)));
+                "Your Hand: %d cards", handSizes.get(playerID)));
 
         drawPileText.setText(String.format(Locale.getDefault(),
                 "%d cards\nremaining\nin deck", drawPileSize));
@@ -87,20 +96,20 @@ public class MainActivity extends AppCompatActivity
         discardPileText.setBackgroundColor(
                 UIUtility.cardColorToColorValue(topDiscardCard.getColor(), this));
 
-        moveItemFactoryMoveVisitor = new MoveItemFactoryMoveVisitor(hand);
+        // Keep a reference to the current hand contents, required to update the move view.
+        this.currentHand = hand;
     }
 
     @Override
     public void requestMove(Referee referee, List<IMove> moves) {
-        for (IMove move : moves) {
-            move.accept(moveItemFactoryMoveVisitor);
-        }
-
-        handViewAdaptor.updateMoveItems(moveItemFactoryMoveVisitor.getMoveItems());
+        // Update the move view based on the received moves.
+        List<IMoveItem> moveItems = MoveItemsCreator.createMoveItems(moves, currentHand);
+        moveViewAdaptor.updateMoveItems(moveItems);
     }
 
     @Override
     public void notifyGameOver(boolean isWinner) {
+        // Display a modal dialog when the game is over.
         DialogFragment dialog = new GameOverDialogFragment();
 
         Bundle args = new Bundle();
@@ -114,6 +123,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onGameOverDialogOkClick() {
+        // When the user dismisses the game over dialog, restart the game.
         resetGame();
     }
 

@@ -1,9 +1,15 @@
 package com.athir.uno.gamelogic;
 
+/**
+ * Move class for drawing a card.
+ */
 public class DrawCardMove implements IMove {
 
     private int player;
 
+    /**
+     * @param player the player to make the move
+     */
     DrawCardMove(int player) {
         this.player = player;
     }

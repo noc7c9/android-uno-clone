@@ -9,6 +9,10 @@ import android.support.v7.app.AlertDialog;
 
 import com.athir.uno.R;
 
+/**
+ * The modal dialog displayed when the game is over.
+ */
+@SuppressWarnings("JavaDoc")
 public class GameOverDialogFragment extends DialogFragment {
 
     public static final String TAG = "GameOver";
@@ -16,6 +20,9 @@ public class GameOverDialogFragment extends DialogFragment {
 
     private GameOverDialogListener listener;
 
+    /**
+     * Interface for the callback for when the dialog is dismissed.
+     */
     public interface GameOverDialogListener {
         void onGameOverDialogOkClick();
     }

@@ -7,34 +7,59 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents one game of Uno.
+ * Keeps track of all game state and implements all the game logic.
+ *
+ * Also implements the IMoveVisitor interface to play moves when visiting.
+ */
 public class GameState implements IMoveVisitor {
 
     private static final int INITIAL_HAND_SIZE = 7;
 
+    // Used when shuffling and when deciding which player plays first.
     private final Random rng;
 
+    // Game state variables
     private final int numPlayers;
     private int currentTurn;
 
-    private ArrayList<ArrayList<Card>> hands;
-    private LinkedList<Card> drawPile;
-    private LinkedList<Card> discardPile;
+    private final ArrayList<ArrayList<ICard>> hands;
+    private final LinkedList<ICard> drawPile;
+    private final LinkedList<ICard> discardPile;
 
     private boolean isGameOver = false;
     private int winner = -1;
 
-    GameState(int numPlayers) {
+    /**
+     * Initialize a new game with a random player starting.
+     *
+     * @param numPlayers the number of players in the game
+     */
+    public GameState(int numPlayers) {
+        this(numPlayers, -1);
+    }
+
+    /**
+     * Initialize a new game with a specified number of players and a specific player starting.
+     *
+     * @param numPlayers     the number of players in the game
+     * @param startingPlayer the player that will start the game, can be negative to let a random player start
+     */
+    public GameState(int numPlayers, int startingPlayer) {
         this.rng = new Random();
 
         this.numPlayers = numPlayers;
-        this.currentTurn = rng.nextInt(numPlayers);
+        this.currentTurn = startingPlayer < 0
+                ? rng.nextInt(numPlayers)
+                : startingPlayer % numPlayers;
 
         // Initialize the deck
         drawPile = new LinkedList<>();
-        for (CardColor color : CardColor.values()) {
+        for (ICard.Color color : ICard.Color.values()) {
             for (int value = 0; value < 10; value++) {
-                drawPile.add(new Card(color, value));
-                drawPile.add(new Card(color, value));
+                drawPile.add(new NumberCard(color, value));
+                drawPile.add(new NumberCard(color, value));
             }
         }
         Collections.shuffle(drawPile, rng);
@@ -42,7 +67,7 @@ public class GameState implements IMoveVisitor {
         // Initialize player hands
         hands = new ArrayList<>(numPlayers);
         for (int i = 0; i < numPlayers; i++) {
-            ArrayList<Card> hand = new ArrayList<>(INITIAL_HAND_SIZE * 2);
+            ArrayList<ICard> hand = new ArrayList<>(INITIAL_HAND_SIZE * 2);
             for (int j = 0; j < INITIAL_HAND_SIZE; j++) {
                 hand.add(drawPile.pop());
             }
@@ -55,42 +80,75 @@ public class GameState implements IMoveVisitor {
         discardPile.add(drawPile.pop());
     }
 
+    /**
+     * Handles bookkeeping necessary when the turn ends. Specifically updating whose turn it is.
+     */
     private void endTurn() {
         currentTurn = (currentTurn + 1) % numPlayers;
     }
 
+    /**
+     * Shuffles the discard pile (excluding the top card) into the draw pile.
+     */
     private void reshuffleDiscardPile() {
-        drawPile.add(discardPile.pop());
+        ICard topCard = discardPile.pop();
 
-        LinkedList<Card> tmp = drawPile;
-        drawPile = discardPile;
-        discardPile = tmp;
-
+        drawPile.addAll(discardPile);
         Collections.shuffle(drawPile, rng);
+
+        discardPile.clear();
+        discardPile.add(topCard);
     }
 
-    private boolean isValidPlay(Card cardToPlay) {
-        Card topCard = getTopCard();
+    /**
+     * Checks if the given card can be played.
+     *
+     * @param ICardToPlay the card to play
+     * @return true if the card can be played
+     */
+    private boolean isValidPlay(ICard ICardToPlay) {
+        ICard topICard = getTopCard();
 
-        boolean isSameColor = topCard.getColor() == cardToPlay.getColor();
-        boolean isSameValue = topCard.getValue() == cardToPlay.getValue();
+        boolean isSameColor = topICard.getColor() == ICardToPlay.getColor();
+        boolean isSameValue = topICard.getRank() == ICardToPlay.getRank();
 
         return isSameColor || isSameValue;
     }
 
+    /**
+     * Returns the ID of the player whose turn it is currently.
+     *
+     * @return current player's ID
+     */
     public int getCurrentTurn() {
         return currentTurn;
     }
 
+    /**
+     * Check if the game is over or not.
+     *
+     * @return true if the game is over
+     */
     public boolean isGameOver() {
         return isGameOver;
     }
 
+    /**
+     * Check who won the game if any.
+     *
+     * @return the winning player's ID, negative if there is no winner yet
+     */
     public int getWinner() {
         return winner;
     }
 
-    public List<Card> getHand(int playerId) {
+    /**
+     * Retrieves the hand of the requested player
+     *
+     * @param playerId ID of the requested player
+     * @return the cards in the hand as a readonly list
+     */
+    public List<ICard> getHand(int playerId) {
         if (playerId < 0 || playerId >= numPlayers) {
             throw new InvalidParameterException(
                     String.format("player id must be within the range 0 to %d", numPlayers - 1));
@@ -98,29 +156,46 @@ public class GameState implements IMoveVisitor {
         return Collections.unmodifiableList(hands.get(playerId));
     }
 
+    /**
+     * Returns a list containing the number of cards each player has.
+     * The index is the playerID and the value is the size of the hand.
+     *
+     * @return the list of hand sizes
+     */
     public List<Integer> getHandSizes() {
         List<Integer> handSizes = new ArrayList<>(hands.size());
-        for (List<Card> hand : hands) {
+        for (List<ICard> hand : hands) {
             handSizes.add(hand.size());
         }
         return handSizes;
     }
 
+    /**
+     * @return the number of cards in the draw pile
+     */
     public int getDrawPileSize() {
         return drawPile.size();
     }
 
-    public Card getTopCard() {
+    /**
+     * @return the card at the top of the discard pile
+     */
+    public ICard getTopCard() {
         return discardPile.peek();
     }
 
+    /**
+     * Return all possible valid moves that a player can take.
+     *
+     * @return the list of moves
+     */
     public List<IMove> getMoves() {
-        List<Card> hand = hands.get(currentTurn);
+        List<ICard> hand = hands.get(currentTurn);
 
         List<IMove> moves = new ArrayList<>(hand.size() + 1);
-        for (Card card : hand) {
-            if (isValidPlay(card)) {
-                moves.add(new PlayCardMove(currentTurn, card));
+        for (ICard ICard : hand) {
+            if (isValidPlay(ICard)) {
+                moves.add(new PlayCardMove(currentTurn, ICard));
             }
         }
 
@@ -129,42 +204,46 @@ public class GameState implements IMoveVisitor {
         return moves;
     }
 
+    /**
+     * Play the given move and end the turn.
+     * Will silently fail if an attempt is made to play out of turn or after the game is over.
+     *
+     * @param move the move to play
+     */
     public void play(IMove move) {
-        move.accept(this);
-    }
-
-    @Override
-    public void visit(PlayCardMove move) {
         if (isGameOver || move.getPlayer() != currentTurn) {
             return;
         }
 
-        Card cardToPlay = move.getCard();
+        move.accept(this);
 
-        if (!isValidPlay(cardToPlay)) {
+        endTurn();
+    }
+
+    // Visitor methods to play each move.
+
+    @Override
+    public void visit(PlayCardMove move) {
+        ICard ICardToPlay = move.getCard();
+
+        if (!isValidPlay(ICardToPlay)) {
             return;
         }
 
-        ArrayList<Card> hand = hands.get(currentTurn);
+        ArrayList<ICard> hand = hands.get(currentTurn);
 
-        hand.remove(cardToPlay);
-        discardPile.push(cardToPlay);
+        hand.remove(ICardToPlay);
+        discardPile.push(ICardToPlay);
 
         // detect game over
         if (hand.size() == 0) {
             isGameOver = true;
             winner = currentTurn;
         }
-
-        endTurn();
     }
 
     @Override
     public void visit(DrawCardMove move) {
-        if (isGameOver || move.getPlayer() != currentTurn) {
-            return;
-        }
-
         // It is possible for draw pile to still be empty.
         if (drawPile.size() > 0) {
             hands.get(currentTurn).add(drawPile.pop());
@@ -172,7 +251,5 @@ public class GameState implements IMoveVisitor {
         if (drawPile.size() == 0) {
             reshuffleDiscardPile();
         }
-
-        endTurn();
     }
 }

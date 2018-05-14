@@ -8,9 +8,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Responsible for populating the move view in the UI according to the given IMoveItems.
+ */
 public class MoveViewAdaptor extends BaseAdapter {
 
     private Context context;
@@ -19,14 +22,25 @@ public class MoveViewAdaptor extends BaseAdapter {
 
     private ColorStateList defaultTextColors = null;
 
+    /**
+     * Creates a MoveViewAdaptor with no move items.
+     *
+     * @param context the context of the view
+     */
     public MoveViewAdaptor(Context context) {
-        // initially load no items
-        this.moveItems = new ArrayList<>(0);
+        // Start with a blank view
+        this.moveItems = Collections.emptyList();
 
         this.context = context;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
+    /**
+     * Update the view with new move items.
+     * This will replace the old list of move items.
+     *
+     * @param moveItems list of new move items
+     */
     public void updateMoveItems(List<IMoveItem> moveItems) {
         this.moveItems = moveItems;
         notifyDataSetChanged();
@@ -62,6 +76,7 @@ public class MoveViewAdaptor extends BaseAdapter {
         if (convertView == null) {
             convertView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
 
+            // Keep a backup of what the default item colors to allow restoring later.
             if (defaultTextColors == null) {
                 TextView textView = convertView.findViewById(android.R.id.text1);
                 defaultTextColors = textView.getTextColors();
@@ -71,6 +86,7 @@ public class MoveViewAdaptor extends BaseAdapter {
         IMoveItem move = moveItems.get(position);
         TextView textView = convertView.findViewById(android.R.id.text1);
 
+        // Update the text view according to the options in the move item.
         textView.setText(move.getLabel());
 
         boolean isEnabled = moveItems.get(position).isEnabled();
