@@ -1,21 +1,21 @@
 package com.athir.uno.gamelogic;
 
 /**
- * Represents a skip card.
+ * Represents a reverse card.
  */
-class SkipCard implements ICard {
+class ReverseCard implements ICard {
 
     private ICard.Color color;
     private ICard.Rank rank;
 
     /**
-     * Create a skip card of the given color
+     * Create a reverse card of the given color
      *
      * @param color the color of the card
      */
-    SkipCard(ICard.Color color) {
+    ReverseCard(ICard.Color color) {
         this.color = color;
-        this.rank = Rank.SKIP;
+        this.rank = Rank.REVERSE;
     }
 
     public String toString() {
@@ -36,16 +36,20 @@ class SkipCard implements ICard {
 
     @Override
     public void onPlay(GameState gameState) {
-        gameState.skipNextPlayer();
+        if (gameState.getNumPlayers() == 2) {
+            gameState.skipNextPlayer();
+        } else {
+            gameState.reverseTurnOrder();
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof SkipCard)) {
+        if (!(o instanceof ReverseCard)) {
             return false;
         }
-        SkipCard card = (SkipCard) o;
+        ReverseCard card = (ReverseCard) o;
         return color == card.color;
     }
 

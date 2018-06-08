@@ -23,6 +23,7 @@ public class GameState implements IMoveVisitor {
     // Game state variables
     private final int numPlayers;
     private int currentTurn;
+    private int turnOrder = 1;
 
     private final ArrayList<ArrayList<ICard>> hands;
     private final LinkedList<ICard> drawPile;
@@ -92,20 +93,18 @@ public class GameState implements IMoveVisitor {
             // Special cards
             drawPile.add(new SkipCard(color));
             drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
-            drawPile.add(new SkipCard(color));
+
+            drawPile.add(new ReverseCard(color));
+            drawPile.add(new ReverseCard(color));
         }
     }
 
     /**
      * Handles bookkeeping necessary when the turn ends. Specifically updating whose turn it is.
      */
-    void endTurn() {
-        currentTurn = (currentTurn + 1) % numPlayers;
+    private void endTurn() {
+        currentTurn = ((currentTurn + turnOrder) % numPlayers);
+        currentTurn = (((currentTurn + numPlayers) % numPlayers)); // handles negative numbers
     }
 
     /**
@@ -134,6 +133,15 @@ public class GameState implements IMoveVisitor {
         boolean isSameValue = topICard.getRank() == ICardToPlay.getRank();
 
         return isSameColor || isSameValue;
+    }
+
+    /**
+     * Returns the number of players.
+     *
+     * @return number of players
+     */
+    public int getNumPlayers() {
+        return numPlayers;
     }
 
     /**
@@ -238,7 +246,9 @@ public class GameState implements IMoveVisitor {
 
         move.accept(this);
 
-        endTurn();
+        if (!isGameOver) {
+            endTurn();
+        }
     }
 
     // Visitor methods to play each move.
@@ -277,4 +287,19 @@ public class GameState implements IMoveVisitor {
             reshuffleDiscardPile();
         }
     }
+
+    /**
+     * Forces the next player to skip their turn.
+     */
+    void skipNextPlayer() {
+        endTurn();
+    }
+
+    /**
+     * Reverses the order in which turns are taken.
+     */
+    void reverseTurnOrder() {
+        turnOrder *= -1;
+    }
+
 }
