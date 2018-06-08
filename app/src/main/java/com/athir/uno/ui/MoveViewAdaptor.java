@@ -22,6 +22,8 @@ public class MoveViewAdaptor extends BaseAdapter {
 
     private ColorStateList defaultTextColors = null;
 
+    private boolean viewDisabled = false;
+
     /**
      * Creates a MoveViewAdaptor with no move items.
      *
@@ -43,6 +45,15 @@ public class MoveViewAdaptor extends BaseAdapter {
      */
     public void updateMoveItems(List<IMoveItem> moveItems) {
         this.moveItems = moveItems;
+        this.viewDisabled = false;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Disables all the items in the view
+     */
+    public void disableView() {
+        this.viewDisabled = true;
         notifyDataSetChanged();
     }
 
@@ -89,7 +100,7 @@ public class MoveViewAdaptor extends BaseAdapter {
         // Update the text view according to the options in the move item.
         textView.setText(move.getLabel());
 
-        boolean isEnabled = moveItems.get(position).isEnabled();
+        boolean isEnabled = !viewDisabled && moveItems.get(position).isEnabled();
         textView.setEnabled(isEnabled);
 
         int colorID = moveItems.get(position).getColorID();

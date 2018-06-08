@@ -61,6 +61,7 @@ class Referee {
         for (IPlayer player : players) {
             player.updateState(
                     playerID,
+                    gameState.getCurrentTurn(),
                     gameState.getTopCard(),
                     gameState.getDrawPileSize(),
                     gameState.getHandSizes(),

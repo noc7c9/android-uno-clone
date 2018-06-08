@@ -3,7 +3,7 @@ package com.athir.uno.gamelogic;
 /**
  * Represents a numbered card.
  */
-class NumberCard implements ICard {
+class NumberedCard implements ICard {
 
     private ICard.Color color;
     private ICard.Rank rank;
@@ -14,7 +14,7 @@ class NumberCard implements ICard {
      * @param color the color of the card
      * @param rank the rank of the card as in int
      */
-    NumberCard(ICard.Color color, int rank) {
+    NumberedCard(ICard.Color color, int rank) {
         this.color = color;
         this.rank = ICard.Rank.getNumberRank(rank);
     }
@@ -36,12 +36,16 @@ class NumberCard implements ICard {
     }
 
     @Override
+    public void onPlay(GameState gameState) {
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof NumberCard)) {
+        if (!(o instanceof NumberedCard)) {
             return false;
         }
-        NumberCard card = (NumberCard) o;
+        NumberedCard card = (NumberedCard) o;
         return color == card.color && rank == card.rank;
     }
 

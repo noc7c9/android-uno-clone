@@ -1,5 +1,7 @@
 package com.athir.uno;
 
+import android.os.Handler;
+
 import com.athir.uno.gamelogic.DrawCardMove;
 import com.athir.uno.gamelogic.ICard;
 import com.athir.uno.gamelogic.IMove;
@@ -16,6 +18,8 @@ import java.util.Random;
  */
 public class RandomAIPlayer implements IPlayer {
 
+    private static final int MOVE_DELAY = 750;
+
     private Random rng;
 
     /**
@@ -26,16 +30,23 @@ public class RandomAIPlayer implements IPlayer {
     }
 
     @Override
-    public void updateState(int playerID, ICard topDiscardCard, int drawPileSize,
+    public void updateState(int playerID, int currPlayerID, ICard topDiscardCard, int drawPileSize,
                             List<Integer> handSizes, List<ICard> hand) { }
 
     @Override
-    public void requestMove(Referee referee, List<IMove> moves) {
-        RandomSelectMoveVisitor visitor = new RandomSelectMoveVisitor(moves.size());
-        for (IMove move : moves) {
-            move.accept(visitor);
-        }
-        referee.play(visitor.getSelection());
+    public void requestMove(final Referee referee, final List<IMove> moves) {
+        Handler pause = new Handler();
+        Runnable playMove = new Runnable() {
+            @Override
+            public void run() {
+                RandomSelectMoveVisitor visitor = new RandomSelectMoveVisitor(moves.size());
+                for (IMove move : moves) {
+                    move.accept(visitor);
+                }
+                referee.play(visitor.getSelection());
+            }
+        };
+        pause.postDelayed(playMove, MOVE_DELAY);
     }
 
     @Override

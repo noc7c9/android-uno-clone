@@ -56,12 +56,7 @@ public class GameState implements IMoveVisitor {
 
         // Initialize the deck
         drawPile = new LinkedList<>();
-        for (ICard.Color color : ICard.Color.values()) {
-            for (int value = 0; value < 10; value++) {
-                drawPile.add(new NumberCard(color, value));
-                drawPile.add(new NumberCard(color, value));
-            }
-        }
+        initializeDeck();
         Collections.shuffle(drawPile, rng);
 
         // Initialize player hands
@@ -81,9 +76,35 @@ public class GameState implements IMoveVisitor {
     }
 
     /**
+     * Initializes the draw pile with all the cards in a deck.
+     */
+    private void initializeDeck() {
+        drawPile.clear();
+
+        for (ICard.Color color : ICard.Color.values()) {
+            // Numbered cards
+            drawPile.add(new NumberedCard(color, 0));
+            for (int value = 1; value < 10; value++) {
+                drawPile.add(new NumberedCard(color, value));
+                drawPile.add(new NumberedCard(color, value));
+            }
+
+            // Special cards
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+            drawPile.add(new SkipCard(color));
+        }
+    }
+
+    /**
      * Handles bookkeeping necessary when the turn ends. Specifically updating whose turn it is.
      */
-    private void endTurn() {
+    void endTurn() {
         currentTurn = (currentTurn + 1) % numPlayers;
     }
 
@@ -193,9 +214,9 @@ public class GameState implements IMoveVisitor {
         List<ICard> hand = hands.get(currentTurn);
 
         List<IMove> moves = new ArrayList<>(hand.size() + 1);
-        for (ICard ICard : hand) {
-            if (isValidPlay(ICard)) {
-                moves.add(new PlayCardMove(currentTurn, ICard));
+        for (ICard card : hand) {
+            if (isValidPlay(card)) {
+                moves.add(new PlayCardMove(currentTurn, card));
             }
         }
 
@@ -224,21 +245,25 @@ public class GameState implements IMoveVisitor {
 
     @Override
     public void visit(PlayCardMove move) {
-        ICard ICardToPlay = move.getCard();
+        ICard cardToPlay = move.getCard();
 
-        if (!isValidPlay(ICardToPlay)) {
+        if (!isValidPlay(cardToPlay)) {
             return;
         }
 
         ArrayList<ICard> hand = hands.get(currentTurn);
 
-        hand.remove(ICardToPlay);
-        discardPile.push(ICardToPlay);
+        hand.remove(cardToPlay);
+        discardPile.push(cardToPlay);
 
         // detect game over
         if (hand.size() == 0) {
             isGameOver = true;
             winner = currentTurn;
+        }
+
+        if (!isGameOver) {
+            cardToPlay.onPlay(this);
         }
     }
 

@@ -14,12 +14,14 @@ interface IPlayer {
      * Called on the player when the state of game changes.
      *
      * @param playerID       this player's ID
+     * @param currPlayerID   current player's ID
      * @param topDiscardCard the top card on the discard pile
      * @param drawPileSize   the number of cards left in the draw pile
      * @param handSizes      the number of cards in the hands of every player
      * @param hand           the cards in this player's hand
      */
-    void updateState(int playerID, ICard topDiscardCard, int drawPileSize, List<Integer> handSizes, List<ICard> hand);
+    void updateState(int playerID, int currPlayerID, ICard topDiscardCard,
+                     int drawPileSize, List<Integer> handSizes, List<ICard> hand);
 
     /**
      * Called by the referee when it is the player's turn and they can make a move

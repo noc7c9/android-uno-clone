@@ -75,17 +75,19 @@ public class MainActivity extends AppCompatActivity
         List<IPlayer> players = new ArrayList<>();
         players.add(this);
         players.add(new RandomAIPlayer());
+        players.add(new RandomAIPlayer());
+        players.add(new RandomAIPlayer());
 
         referee = new Referee(players);
     }
 
     @Override
-    public void updateState(int playerID, ICard topDiscardCard, int drawPileSize,
+    public void updateState(int playerID, int currPlayerID, ICard topDiscardCard, int drawPileSize,
                             List<Integer> handSizes, List<ICard> hand) {
+        moveViewAdaptor.disableView();
 
         // Update the user interface with new game state information.
-        cpuHandText.setText(String.format(Locale.getDefault(),
-                "CPU Hand: %d cards", handSizes.get(playerID == 0 ? 1 : 0)));
+        cpuHandText.setText(createCPUHandText(playerID, currPlayerID, handSizes));
         playerHandText.setText(String.format(Locale.getDefault(),
                 "Your Hand: %d cards", handSizes.get(playerID)));
 
@@ -98,6 +100,39 @@ public class MainActivity extends AppCompatActivity
 
         // Keep a reference to the current hand contents, required to update the move view.
         this.currentHand = hand;
+    }
+
+    private String createCPUHandText(int playerID, int currPlayerID, List<Integer> handSizes) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("CPU Hand");
+        if (handSizes.size() > 2) {
+            stringBuilder.append('s');
+        }
+        stringBuilder.append(": ");
+
+        int numPlayers = handSizes.size();
+        for (int i = 0; i < numPlayers; i++) {
+            if (i == playerID) {
+                continue;
+            }
+
+            if (i == currPlayerID) {
+                stringBuilder.append('[');
+                stringBuilder.append(handSizes.get(i));
+                stringBuilder.append(']');
+            } else {
+                stringBuilder.append(' ');
+                stringBuilder.append(handSizes.get(i));
+                stringBuilder.append(' ');
+            }
+
+            if (i != numPlayers - 1) {
+                stringBuilder.append(" | ");
+            }
+        }
+
+        return stringBuilder.toString();
     }
 
     @Override
