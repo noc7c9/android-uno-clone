@@ -96,6 +96,9 @@ public class GameState implements IMoveVisitor {
 
             drawPile.add(new ReverseCard(color));
             drawPile.add(new ReverseCard(color));
+
+            drawPile.add(new DrawTwoCard(color));
+            drawPile.add(new DrawTwoCard(color));
         }
     }
 
@@ -103,8 +106,18 @@ public class GameState implements IMoveVisitor {
      * Handles bookkeeping necessary when the turn ends. Specifically updating whose turn it is.
      */
     private void endTurn() {
-        currentTurn = ((currentTurn + turnOrder) % numPlayers);
-        currentTurn = (((currentTurn + numPlayers) % numPlayers)); // handles negative numbers
+        currentTurn = getNextPlayer();
+    }
+
+    /**
+     * Figures out the ID of the player that will play next.
+     *
+     * @return the next player's ID
+     */
+    private int getNextPlayer() {
+        int nextPlayerID = ((currentTurn + turnOrder) % numPlayers);
+        nextPlayerID = (((nextPlayerID + numPlayers) % numPlayers)); // handles negative numbers
+        return nextPlayerID;
     }
 
     /**
@@ -279,9 +292,18 @@ public class GameState implements IMoveVisitor {
 
     @Override
     public void visit(DrawCardMove move) {
+        drawCard(currentTurn);
+    }
+
+    /**
+     * Makes the given player draw a card.
+     *
+     * @param playerID the player that will draw the card
+     */
+    private void drawCard(int playerID) {
         // It is possible for draw pile to still be empty.
         if (drawPile.size() > 0) {
-            hands.get(currentTurn).add(drawPile.pop());
+            hands.get(playerID).add(drawPile.pop());
         }
         if (drawPile.size() == 0) {
             reshuffleDiscardPile();
@@ -300,6 +322,18 @@ public class GameState implements IMoveVisitor {
      */
     void reverseTurnOrder() {
         turnOrder *= -1;
+    }
+
+    /**
+     * Forces the next player to draw a given number of cards.
+     *
+     * @param numCards the number of cards to be drawn
+     */
+    void forceDrawNextPlayer(int numCards) {
+        int nextPlayerID = getNextPlayer();
+        for (int i = 0; i < numCards; i++) {
+            drawCard(nextPlayerID);
+        }
     }
 
 }
