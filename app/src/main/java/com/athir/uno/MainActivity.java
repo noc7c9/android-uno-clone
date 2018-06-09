@@ -1,6 +1,7 @@
 package com.athir.uno;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.athir.uno.ui.MoveViewAdaptor;
 import com.athir.uno.ui.UIUtility;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,7 +40,8 @@ public class MainActivity extends AppCompatActivity
 
     // The game related state variables
     private Referee referee;
-    private List<ICard> currentHand;
+    private List<ICard> currentHand = Collections.emptyList();
+    private List<IMove> previousMoves = Collections.emptyList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +85,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void updateState(int playerID, int currPlayerID, ICard topDiscardCard, int drawPileSize,
-                            List<Integer> handSizes, List<ICard> hand) {
-        moveViewAdaptor.disableView();
+    public void updateState(int playerID, int currPlayerID,
+                            @NonNull ICard topDiscardCard, int drawPileSize,
+                            @NonNull List<Integer> handSizes, @NonNull List<ICard> hand) {
+        // Update the hand view even when its not the player's turn.
+        // Note: If it is the player's turn, then requestMove will update the view.
+        if (playerID != currPlayerID) {
+            List<IMoveItem> moveItems = MoveItemsCreator.createMoveItems(previousMoves, hand);
+            moveViewAdaptor.updateMoveItems(moveItems);
+            moveViewAdaptor.disableView();
+        }
+
+        // Keep a reference to the current hand contents, required to update the move view.
+        this.currentHand = hand;
 
         // Update the user interface with new game state information.
         cpuHandText.setText(createCPUHandText(playerID, currPlayerID, handSizes));
@@ -97,9 +110,6 @@ public class MainActivity extends AppCompatActivity
         discardPileText.setText(topDiscardCard.toString());
         discardPileText.setBackgroundColor(
                 UIUtility.cardColorToColorValue(topDiscardCard.getColor(), this));
-
-        // Keep a reference to the current hand contents, required to update the move view.
-        this.currentHand = hand;
     }
 
     private String createCPUHandText(int playerID, int currPlayerID, List<Integer> handSizes) {
@@ -140,6 +150,10 @@ public class MainActivity extends AppCompatActivity
         // Update the move view based on the received moves.
         List<IMoveItem> moveItems = MoveItemsCreator.createMoveItems(moves, currentHand);
         moveViewAdaptor.updateMoveItems(moveItems);
+
+        // Keep a reference to the moves,
+        // required to update the move view when its not the player's turn.
+        this.previousMoves = moves;
     }
 
     @Override

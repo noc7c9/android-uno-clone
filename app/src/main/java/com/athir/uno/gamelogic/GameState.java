@@ -100,6 +100,10 @@ public class GameState implements IMoveVisitor {
             drawPile.add(new DrawTwoCard(color));
             drawPile.add(new DrawTwoCard(color));
         }
+
+        for (int i = 0; i < 14; i++) {
+            drawPile.add(new WildCard());
+        }
     }
 
     /**
@@ -136,16 +140,11 @@ public class GameState implements IMoveVisitor {
     /**
      * Checks if the given card can be played.
      *
-     * @param ICardToPlay the card to play
+     * @param cardToPlay the card to play
      * @return true if the card can be played
      */
-    private boolean isValidPlay(ICard ICardToPlay) {
-        ICard topICard = getTopCard();
-
-        boolean isSameColor = topICard.getColor() == ICardToPlay.getColor();
-        boolean isSameValue = topICard.getRank() == ICardToPlay.getRank();
-
-        return isSameColor || isSameValue;
+    private boolean isValidPlay(ICard cardToPlay) {
+        return cardToPlay.isValidOn(getTopCard());
     }
 
     /**
@@ -237,7 +236,7 @@ public class GameState implements IMoveVisitor {
         List<IMove> moves = new ArrayList<>(hand.size() + 1);
         for (ICard card : hand) {
             if (isValidPlay(card)) {
-                moves.add(new PlayCardMove(currentTurn, card));
+                moves.addAll(card.getMoves(this));
             }
         }
 

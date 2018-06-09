@@ -1,5 +1,7 @@
 package com.athir.uno;
 
+import android.support.annotation.NonNull;
+
 import com.athir.uno.gamelogic.ICard;
 import com.athir.uno.gamelogic.IMove;
 
@@ -20,8 +22,8 @@ interface IPlayer {
      * @param handSizes      the number of cards in the hands of every player
      * @param hand           the cards in this player's hand
      */
-    void updateState(int playerID, int currPlayerID, ICard topDiscardCard,
-                     int drawPileSize, List<Integer> handSizes, List<ICard> hand);
+    void updateState(int playerID, int currPlayerID, @NonNull ICard topDiscardCard,
+                     int drawPileSize, @NonNull List<Integer> handSizes, @NonNull List<ICard> hand);
 
     /**
      * Called by the referee when it is the player's turn and they can make a move

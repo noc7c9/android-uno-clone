@@ -1,6 +1,8 @@
 package com.athir.uno.gamelogic;
 
 import java.security.InvalidParameterException;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Interface that represents a card.
@@ -18,7 +20,23 @@ public interface ICard {
     ICard.Rank getRank();
 
     /**
-     * @return the rank of the card
+     * Returns a list of moves that this card be used for.
+     *
+     * @param gameState the game state object
+     * @return the list of moves
+     */
+    List<IMove> getMoves(GameState gameState);
+
+    /**
+     * Returns whether or not the card be played on the given card.
+     *
+     * @param cardPlayedOn the card to be played on
+     * @return should be true if the play is valid
+     */
+    boolean isValidOn(ICard cardPlayedOn);
+
+    /**
+     * @param gameState the game state object
      */
     void onPlay(GameState gameState);
 
@@ -52,7 +70,8 @@ public interface ICard {
         NUM_0("0"), NUM_1("1"), NUM_2("2"), NUM_3("3"), NUM_4("4"),
         NUM_5("5"), NUM_6("6"), NUM_7("7"), NUM_8("8"), NUM_9("9"),
 
-        SKIP("Skip"), REVERSE("Reverse"), DRAW_TWO("Draw Two");
+        SKIP("Skip"), REVERSE("Reverse"), DRAW_TWO("Draw Two"),
+        WILD("Wild");
 
         private String displayName;
 

@@ -1,6 +1,7 @@
 package com.athir.uno;
 
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import com.athir.uno.gamelogic.DrawCardMove;
 import com.athir.uno.gamelogic.ICard;
@@ -30,8 +31,8 @@ public class RandomAIPlayer implements IPlayer {
     }
 
     @Override
-    public void updateState(int playerID, int currPlayerID, ICard topDiscardCard, int drawPileSize,
-                            List<Integer> handSizes, List<ICard> hand) { }
+    public void updateState(int playerID, int currPlayerID, @NonNull ICard topDiscardCard, int drawPileSize,
+                            @NonNull List<Integer> handSizes, @NonNull List<ICard> hand) { }
 
     @Override
     public void requestMove(final Referee referee, final List<IMove> moves) {

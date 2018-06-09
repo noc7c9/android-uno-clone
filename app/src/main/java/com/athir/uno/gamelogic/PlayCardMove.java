@@ -34,4 +34,8 @@ public class PlayCardMove implements IMove {
         return card;
     }
 
+    @Override
+    public String toString() {
+        return String.format("PlayCardMove(%s)", card.toString());
+    }
 }

@@ -34,6 +34,9 @@ public final class UIUtility {
      * @return the resource id
      */
     public static int cardColorToColorId(ICard.Color cardColor) {
+        if (cardColor == null) {
+            return R.color.uncolored;
+        }
         switch (cardColor) {
             case RED:
                 return R.color.colorRedCard;

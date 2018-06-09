@@ -1,5 +1,7 @@
 package com.athir.uno.ui;
 
+import android.support.annotation.NonNull;
+
 import com.athir.uno.gamelogic.DrawCardMove;
 import com.athir.uno.gamelogic.ICard;
 import com.athir.uno.gamelogic.IMove;
@@ -7,6 +9,7 @@ import com.athir.uno.gamelogic.IMoveVisitor;
 import com.athir.uno.gamelogic.PlayCardMove;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +21,8 @@ import java.util.Map;
 public class MoveItemsCreator implements IMoveVisitor {
 
     private final List<ICard> hand;
-    private final Map<ICard, PlayCardMoveItem> playCardMoveItems;
-    private DrawCardMoveItem drawCardMoveItem;
+    private final Map<ICard, List<PlayCardMoveItem>> playCardMoveItems;
+    private DrawCardMoveItem drawCardMoveItem = null;
 
     /**
      * Returns a list of move items for the given hand and moves.
@@ -29,7 +32,7 @@ public class MoveItemsCreator implements IMoveVisitor {
      * @param hand the given hand
      * @return the list of move items
      */
-    public static List<IMoveItem> createMoveItems(List<IMove> moves, List<ICard> hand) {
+    public static List<IMoveItem> createMoveItems(@NonNull List<IMove> moves, @NonNull List<ICard> hand) {
         MoveItemsCreator moveItemsCreator = new MoveItemsCreator(hand);
 
         for (IMove move : moves) {
@@ -44,7 +47,7 @@ public class MoveItemsCreator implements IMoveVisitor {
      *
      * @param hand the hand to use for this instance
      */
-    private MoveItemsCreator(List<ICard> hand) {
+    private MoveItemsCreator(@NonNull List<ICard> hand) {
         this.hand = hand;
         playCardMoveItems = new HashMap<>(hand.size());
     }
@@ -53,27 +56,36 @@ public class MoveItemsCreator implements IMoveVisitor {
      * Create the final list of move items based on the visited moves.
      * Also creates the InvalidMoveItems for any cards that cannot be played.
      *
+     * The move items will be ordered according the hand order.
+     *
      * @return the list of move items
      */
     private List<IMoveItem> getFinalMoveItemsList() {
-        List<IMoveItem> moveItems = new ArrayList<>(hand.size() + 1);
+        List<IMoveItem> moveItems = new ArrayList<>(
+                playCardMoveItems.size() + hand.size() + 1);
 
         for (ICard card : hand) {
             if (playCardMoveItems.containsKey(card)) {
-                moveItems.add(playCardMoveItems.get(card));
+                moveItems.addAll(playCardMoveItems.remove(card));
             } else {
                 moveItems.add(new InvalidMoveItem(card));
             }
         }
 
-        moveItems.add(drawCardMoveItem);
+        if (drawCardMoveItem != null) {
+            moveItems.add(drawCardMoveItem);
+        }
 
         return moveItems;
     }
 
     @Override
     public void visit(PlayCardMove move) {
-        playCardMoveItems.put(move.getCard(), new PlayCardMoveItem(move));
+        ICard card = move.getCard();
+        if (!playCardMoveItems.containsKey(card)) {
+            playCardMoveItems.put(card, new ArrayList<PlayCardMoveItem>(4));
+        }
+        playCardMoveItems.get(card).add(new PlayCardMoveItem(move));
     }
 
     @Override
