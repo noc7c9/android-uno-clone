@@ -101,8 +101,9 @@ public class GameState implements IMoveVisitor {
             drawPile.add(new DrawTwoCard(color));
         }
 
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 4; i++) {
             drawPile.add(new WildCard());
+            drawPile.add(new WildFourCard());
         }
     }
 

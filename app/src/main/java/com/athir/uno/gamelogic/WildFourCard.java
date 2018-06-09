@@ -4,23 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a wild card.
+ * Represents a wild four card.
  */
-class WildCard extends AbstractBaseCard {
+class WildFourCard extends AbstractBaseCard {
 
     /**
-     * Create a wild card
+     * Create a wild four card
      */
-    WildCard() {
-        super(null, Rank.WILD);
+    WildFourCard() {
+        super(null, Rank.WILD_FOUR);
     }
 
-    private WildCard(ICard.Color color, int cardID) {
-        super(color, Rank.WILD, cardID);
+    private WildFourCard(ICard.Color color, int cardID) {
+        super(color, Rank.WILD_FOUR, cardID);
     }
 
     @Override
     public void onPlay(GameState gameState) {
+        gameState.forceDrawNextPlayer(4);
+        gameState.skipNextPlayer();
     }
 
     @Override
@@ -33,7 +35,7 @@ class WildCard extends AbstractBaseCard {
         List<IMove> moves = new ArrayList<>();
 
         for (ICard.Color color : ICard.Color.values()) {
-            WildCard coloredClone = new WildCard(color, getCardID());
+            WildFourCard coloredClone = new WildFourCard(color, getCardID());
             moves.add(new PlayCardMove(gameState.getCurrentTurn(), coloredClone));
         }
 
