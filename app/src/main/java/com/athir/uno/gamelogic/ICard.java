@@ -1,7 +1,6 @@
 package com.athir.uno.gamelogic;
 
 import java.security.InvalidParameterException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -47,7 +46,7 @@ public interface ICard {
     enum Color {
         RED("Red"), BLUE("Blue"), YELLOW("Yellow"), GREEN("Green");
 
-        private String displayName;
+        private final String displayName;
 
         /**
          * @param displayName the enum name for display purposes
@@ -73,7 +72,7 @@ public interface ICard {
         SKIP("Skip"), REVERSE("Reverse"), DRAW_TWO("Draw +2"),
         WILD("Wild"), WILD_FOUR("Wild +4");
 
-        private String displayName;
+        private final String displayName;
 
         /**
          * @param displayName the enum name for display purposes

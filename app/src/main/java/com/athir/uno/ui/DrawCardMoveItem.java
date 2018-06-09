@@ -8,7 +8,7 @@ import com.athir.uno.gamelogic.IMove;
  */
 public class DrawCardMoveItem implements IMoveItem {
 
-    private DrawCardMove move;
+    private final DrawCardMove move;
 
     /**
      * @param move the move this item represents

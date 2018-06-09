@@ -11,8 +11,8 @@ import com.athir.uno.gamelogic.PlayCardMove;
  */
 public class PlayCardMoveItem implements IMoveItem {
 
-    private PlayCardMove move;
-    private ICard card;
+    private final PlayCardMove move;
+    private final ICard card;
 
     /**
      * @param move the move this item represents

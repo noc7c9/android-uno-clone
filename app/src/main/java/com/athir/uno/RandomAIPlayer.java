@@ -21,7 +21,7 @@ public class RandomAIPlayer implements IPlayer {
 
     private static final int MOVE_DELAY = 750;
 
-    private Random rng;
+    private final Random rng;
 
     /**
      * Initialize a new random ai player
@@ -59,7 +59,7 @@ public class RandomAIPlayer implements IPlayer {
      */
     private class RandomSelectMoveVisitor implements IMoveVisitor {
 
-        private List<PlayCardMove> playMoves;
+        private final List<PlayCardMove> playMoves;
         private DrawCardMove drawMove;
 
         /**

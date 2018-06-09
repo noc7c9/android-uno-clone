@@ -5,7 +5,7 @@ package com.athir.uno.gamelogic;
  */
 public class DrawCardMove implements IMove {
 
-    private int player;
+    private final int player;
 
     /**
      * @param player the player to make the move

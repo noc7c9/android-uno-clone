@@ -16,7 +16,7 @@
       </option>
       <option name="METHOD_OPTIONS">
         <value>
-          <option name="ACCESS_JAVADOC_REQUIRED_FOR" value="private" />
+          <option name="ACCESS_JAVADOC_REQUIRED_FOR" value="package" />
           <option name="REQUIRED_TAGS" value="@return@param@throws or @exception" />
         </value>
       </option>

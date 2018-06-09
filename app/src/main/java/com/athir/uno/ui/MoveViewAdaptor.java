@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class MoveViewAdaptor extends BaseAdapter {
 
-    private Context context;
-    private LayoutInflater inflater;
+    private final Context context;
+    private final LayoutInflater inflater;
     private List<IMoveItem> moveItems;
 
     private ColorStateList defaultTextColors = null;

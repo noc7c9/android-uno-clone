@@ -11,7 +11,7 @@ import com.athir.uno.gamelogic.IMove;
  */
 public class InvalidMoveItem implements IMoveItem {
 
-    private ICard card;
+    private final ICard card;
 
     /**
      * @param card the card this item represents

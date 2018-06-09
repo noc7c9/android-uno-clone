@@ -11,8 +11,8 @@ abstract class AbstractBaseCard implements ICard {
     private static int globalCardID = 0;
     private int cardID;
 
-    private ICard.Color color;
-    private ICard.Rank rank;
+    private final ICard.Color color;
+    private final ICard.Rank rank;
 
     /**
      * Create a card of the given color and rank.

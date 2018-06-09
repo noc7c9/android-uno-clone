@@ -13,8 +13,8 @@ import java.util.List;
  */
 class Referee {
 
-    private GameState gameState;
-    private List<IPlayer> players;
+    private final GameState gameState;
+    private final List<IPlayer> players;
 
     /**
      * Creates a new game with the given players.

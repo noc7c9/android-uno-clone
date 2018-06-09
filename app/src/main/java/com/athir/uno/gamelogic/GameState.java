@@ -47,7 +47,7 @@ public class GameState implements IMoveVisitor {
      * @param numPlayers     the number of players in the game
      * @param startingPlayer the player that will start the game, can be negative to let a random player start
      */
-    public GameState(int numPlayers, int startingPlayer) {
+    private GameState(int numPlayers, int startingPlayer) {
         this.rng = new Random();
 
         this.numPlayers = numPlayers;
